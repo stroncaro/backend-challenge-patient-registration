@@ -1,37 +1,19 @@
 from typing import Union
 
 from contextlib import asynccontextmanager
-import os
 
 import debugpy
 from fastapi import FastAPI
-from sqlalchemy.exc import SQLAlchemyError
-from sqlmodel import Session, create_engine, SQLModel
+from sqlmodel import Session
 
-from models.patient import Patient
-
+from db import create_database_and_tables
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Start debugging
     debugpy.listen(("0.0.0.0", 5678))
 
-    # Init db connection
-    MYSQL_HOST = os.getenv("MYSQL_HOST")
-    MYSQL_PORT = os.getenv("MYSQL_PORT")
-    MYSQL_USER = os.getenv("MYSQL_USER")
-    MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
-    MYSQL_DATABASE = os.getenv("MYSQL_DATABASE")
-
-    DB_URL = f"mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}"
-
-    engine = create_engine(DB_URL, echo=True)
-
-    try:
-        SQLModel.metadata.create_all(bind=engine)
-        print("Tables created successfully.")
-    except SQLAlchemyError as e:
-        print(f"Error creating tables: {e}")
+    create_database_and_tables()
     
     yield
 
