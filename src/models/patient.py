@@ -3,7 +3,7 @@ from pydantic import EmailStr
 import phonenumbers
 
 class Patient(SQLModel, table=True):
-    id: int = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     name: str
     email: EmailStr
     phone_number: str
