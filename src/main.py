@@ -29,7 +29,7 @@ def read_patients():
         return patients
 
 @app.put("/patient")
-def add_patient(patient: Patient):
+def create_patient(patient: Patient):
     with Session(engine) as session:
         session.add(patient)
         session.commit()
