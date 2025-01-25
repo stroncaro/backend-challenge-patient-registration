@@ -2,8 +2,7 @@ from sqlmodel import SQLModel, Field
 from pydantic import EmailStr
 import phonenumbers
 
-class Patient(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+class PatientBase(SQLModel):
     name: str
     email: EmailStr
     phone_number: str
@@ -19,3 +18,12 @@ class Patient(SQLModel, table=True):
                 raise ValueError("Invalid phone number")
         except phonenumbers.phonenumberutil.NumberParseException:
             raise ValueError("Invalid phone number format")
+
+class Patient(PatientBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
+class PatientCreate(PatientBase):
+    pass
+
+class PatientPublic(PatientBase):
+    id: int

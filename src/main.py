@@ -4,7 +4,7 @@ import debugpy
 from fastapi import FastAPI
 from sqlmodel import Session, select
 
-from models.patient import Patient
+from models.patient import Patient, PatientCreate, PatientPublic
 from db import engine, create_database_and_tables
 
 
@@ -22,16 +22,17 @@ app = FastAPI(lifespan=lifespan)
 def read_root():
     return {"Hello": "World!"}
 
-@app.get("/patients", response_model=list[Patient])
+@app.get("/patients", response_model=list[PatientPublic])
 def read_patients():
     with Session(engine) as session:
         patients = session.exec(select(Patient)).all()
         return patients
 
-@app.put("/patient", response_model=Patient)
-def create_patient(patient: Patient):
+@app.put("/patient", response_model=PatientPublic)
+def create_patient(patient: PatientCreate):
     with Session(engine) as session:
-        session.add(patient)
+        db_patient = Patient.model_validate(patient)
+        session.add(db_patient)
         session.commit()
-        session.refresh(patient)
-        return patient
+        session.refresh(db_patient)
+        return db_patient
