@@ -1,0 +1,5 @@
+fastapi[standard]
+sqlmodel
+mysql-connector-python
+phonenumbers
+debugpy
