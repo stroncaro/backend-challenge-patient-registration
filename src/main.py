@@ -22,13 +22,13 @@ app = FastAPI(lifespan=lifespan)
 def read_root():
     return {"Hello": "World!"}
 
-@app.get("/patients")
+@app.get("/patients", response_model=list[Patient])
 def read_patients():
     with Session(engine) as session:
         patients = session.exec(select(Patient)).all()
         return patients
 
-@app.put("/patient")
+@app.put("/patient", response_model=Patient)
 def create_patient(patient: Patient):
     with Session(engine) as session:
         session.add(patient)
