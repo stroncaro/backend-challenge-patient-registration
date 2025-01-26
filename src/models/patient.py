@@ -7,6 +7,16 @@ class PatientBase(SQLModel):
     email: EmailStr
     phone_number: str
 
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, value: str):
+        # Validating names is a complex endeavour, so I'm only catching empty strings here.
+        # Stricter validation can be implemented if required.
+        # For context, see answer and comments at https://stackoverflow.com/a/2385811
+        if not value.strip():
+            raise ValueError("Name cannot be empty or only whitespace")
+        return value
+
     @field_validator("phone_number")
     @classmethod
     def validate_phone_number(cls, value):
