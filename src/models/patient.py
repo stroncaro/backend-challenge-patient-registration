@@ -7,6 +7,8 @@ from pydantic import EmailStr, field_validator
 from sqlmodel import SQLModel, Field, Column, BLOB
 from sqlalchemy import event
 
+from services.email import DummyEmailService
+
 class PatientBase(SQLModel):
     name: str
     email: EmailStr
@@ -62,5 +64,19 @@ class PatientPublic(PatientBase):
 
 def patient_after_insert_listener(mapper, connection, target: Patient):
     print(f"Patient {target.name} added to the db. Queue email to {target.email}.")
+
+    email_data = {
+        "subject": "Registration succesful!",
+        "recipients": [target.email],
+        "body": f"""Hello {target.name},
+
+Your registration is complete. Thank you for trusting us with your data.
+
+Warm regards,
+The Patient Registration Team
+"""
+    }
+
+    DummyEmailService.send_in_background(**email_data)
 
 event.listen(Patient, "after_insert", patient_after_insert_listener)
