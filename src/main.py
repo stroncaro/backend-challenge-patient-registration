@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException, UploadFile, Form, File
 from pydantic import EmailStr, ValidationError
 from sqlmodel import Session, select
 
-from models.patient import Patient, PatientPublic, MAX_IMG_SIZE
+from models.patient import Patient, PatientPublic
 from db import engine, create_database_and_tables
 from utils.chunks import read_file_in_chunks, FileTooLargeException
 
@@ -44,7 +44,7 @@ async def create_patient(
     #   2. Monitor memory usage and deny requests after certain treshold to avoid app crashing?
     #   3. Move to a cloud storage solution? (will also lessen the burden of the db)
     try:
-        document_image = await read_file_in_chunks(document_image_file, max_size=MAX_IMG_SIZE)
+        document_image = await read_file_in_chunks(document_image_file, max_size=Patient.MAX_IMG_SIZE)
     except FileTooLargeException as e:
         raise HTTPException(status_code=400, detail=str(e))
 

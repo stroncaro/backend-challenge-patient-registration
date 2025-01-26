@@ -1,10 +1,10 @@
+from typing import ClassVar
+from io import BytesIO
+
 from PIL import Image, UnidentifiedImageError
 import phonenumbers
 from pydantic import EmailStr, field_validator
-from sqlmodel import SQLModel, Field
-
-# Limit img size to 2mb
-MAX_IMG_SIZE = 2 * (1024 ** 2)
+from sqlmodel import SQLModel, Field, Column, BLOB
 
 class PatientBase(SQLModel):
     name: str
@@ -33,14 +33,17 @@ class PatientBase(SQLModel):
         return value
 
 class Patient(PatientBase, table=True):
+    # Limit img size to 2mb
+    MAX_IMG_SIZE: ClassVar[int] = 2 * (1024 ** 2)
+
     id: int | None = Field(default=None, primary_key=True)
-    document_image: bytes
+    document_image: bytes = Field(sa_column=Column(BLOB(MAX_IMG_SIZE)))
 
     @field_validator("document_image")
     @classmethod
     def validate_document_image(cls, value: bytes) -> bytes:
         try:
-            with Image.open(value) as img:
+            with Image.open(BytesIO(value)) as img:
                 if img.format not in {"PNG", "JPEG"}:
                     raise ValueError(f"Invalid image format, must be PNG or JPEG")
                 img.verify()
