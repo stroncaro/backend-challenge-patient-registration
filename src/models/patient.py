@@ -9,7 +9,7 @@ class PatientBase(SQLModel):
 
     @field_validator("name")
     @classmethod
-    def validate_name(cls, value: str):
+    def validate_name(cls, value: str) -> str:
         # Validating names is a complex endeavour, so I'm only catching empty strings here.
         # Stricter validation can be implemented if required.
         # For context, see answer and comments at https://stackoverflow.com/a/2385811
@@ -19,7 +19,7 @@ class PatientBase(SQLModel):
 
     @field_validator("phone_number")
     @classmethod
-    def validate_phone_number(cls, value):
+    def validate_phone_number(cls, value: str) -> str:
         try:
             parsed_phone = phonenumbers.parse(value)
             if not phonenumbers.is_valid_number(parsed_phone):
