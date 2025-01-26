@@ -2,6 +2,9 @@ from sqlmodel import SQLModel, Field
 from pydantic import EmailStr, field_validator
 import phonenumbers
 
+# Limit img size to 5mb
+MAX_IMG_SIZE = 5 * (1024 ** 2)
+
 class PatientBase(SQLModel):
     name: str
     email: EmailStr

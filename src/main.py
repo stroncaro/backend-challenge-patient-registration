@@ -6,9 +6,9 @@ from fastapi import FastAPI, HTTPException, UploadFile, Form, File
 from pydantic import EmailStr, ValidationError
 from sqlmodel import Session, select
 
-from models.patient import Patient, PatientPublic
+from models.patient import Patient, PatientPublic, MAX_IMG_SIZE
 from db import engine, create_database_and_tables
-
+from utils.chunks import read_file_in_chunks, FileTooLargeException
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -37,14 +37,20 @@ async def create_patient(
     phone_number: Annotated[str, Form()],
     document_image_file: Annotated[UploadFile, File()]
 ):
-    document_image = await document_image_file.read()
-    patient_data = Patient(name=name, email=email, phone_number=phone_number, document_image=document_image)
+    # Get image in chunks to avoid blocking the application
+    document_image = b""
+    try:
+        async for chunk in read_file_in_chunks(document_image_file, max_size=MAX_IMG_SIZE):
+            document_image += chunk
+    except FileTooLargeException as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
+    # Validate data
+    patient_data = Patient(name=name, email=email, phone_number=phone_number, document_image=document_image)
     validation_errors = []
     try:
         Patient.model_validate(patient_data)
     except ValidationError as e:
-        # FastAPI's Pydantic validation errors
         validation_errors.extend([
             {"loc": err["loc"], "msg": err["msg"], "type": err["type"]}
             for err in e.errors()
