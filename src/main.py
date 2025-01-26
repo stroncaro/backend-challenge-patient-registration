@@ -38,7 +38,7 @@ async def create_patient(
     document_image_file: Annotated[UploadFile, File()]
 ):
     # Get image in chunks to avoid blocking the application.
-    # Currently, the images are stored in ram, which should be fine for moderate traffic?
+    # NOTE: Currently, the images are stored in ram, which should be fine for moderate traffic?
     # For scaling, consider:
     #   1. Writing images to temp files on disk (slower, but can mitigate ram usage issues)
     #   2. Monitor memory usage and deny requests after certain treshold to avoid app crashing?
@@ -48,9 +48,9 @@ async def create_patient(
     except FileTooLargeException as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    # TODO: validate image asynchronously
-
-    # Validate data
+    # Validate data, collecting errors
+    # NOTE: Currently, the image is being validated synchronously with the rest of the data,
+    # which could slow down execution. If this turns out to be a problem, validate it asynchronously.
     patient_data = Patient(name=name, email=email, phone_number=phone_number, document_image=document_image)
     validation_errors = []
     try:
