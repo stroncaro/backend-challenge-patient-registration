@@ -1,5 +1,7 @@
 fastapi[standard]
+python-multipart
 sqlmodel
 mysql-connector-python
 phonenumbers
+pillow
 debugpy
