@@ -5,6 +5,7 @@ from PIL import Image, UnidentifiedImageError
 import phonenumbers
 from pydantic import EmailStr, field_validator
 from sqlmodel import SQLModel, Field, Column, BLOB
+from sqlalchemy import event
 
 class PatientBase(SQLModel):
     name: str
@@ -58,3 +59,8 @@ class Patient(PatientBase, table=True):
 
 class PatientPublic(PatientBase):
     id: int
+
+def patient_after_insert_listener(mapper, connection, target: Patient):
+    print(f"Patient {target.name} added to the db. Queue email to {target.email}.")
+
+event.listen(Patient, "after_insert", patient_after_insert_listener)

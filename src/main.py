@@ -60,7 +60,4 @@ async def create_patient(
         session.add(patient_data)
         session.commit()
         session.refresh(patient_data)
-
-    # TODO: queue up email
-    
-    return patient_data
+        return patient_data
