@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 import debugpy
 from fastapi import FastAPI, HTTPException, UploadFile, Form, File
 from pydantic import EmailStr, ValidationError
-from sqlmodel import Session, select
+from sqlmodel import Session
 
 from models.patient import Patient, PatientPublic
 from db import engine, create_database_and_tables
@@ -19,16 +19,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World!"}
-
-@app.get("/patients", response_model=list[PatientPublic])
-def read_patients():
-    with Session(engine) as session:
-        patients = session.exec(select(Patient)).all()
-        return patients
 
 @app.put("/patient", response_model=PatientPublic)
 async def create_patient(
@@ -63,10 +53,14 @@ async def create_patient(
     if validation_errors:
         raise HTTPException(status_code=422, detail=validation_errors)
 
+    # NOTE: It bears saying that depending on project needs, it could be needed to validate the document_image
+    # with an external id validation service to prevent forged ids or otherwise false data to enter the system.
+
     with Session(engine) as session:
         session.add(patient_data)
         session.commit()
         session.refresh(patient_data)
-        return patient_data
 
     # TODO: queue up email
+    
+    return patient_data
