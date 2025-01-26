@@ -37,13 +37,18 @@ async def create_patient(
     phone_number: Annotated[str, Form()],
     document_image_file: Annotated[UploadFile, File()]
 ):
-    # Get image in chunks to avoid blocking the application
-    document_image = b""
+    # Get image in chunks to avoid blocking the application.
+    # Currently, the images are stored in ram, which should be fine for moderate traffic?
+    # For scaling, consider:
+    #   1. Writing images to temp files on disk (slower, but can mitigate ram usage issues)
+    #   2. Monitor memory usage and deny requests after certain treshold to avoid app crashing?
+    #   3. Move to a cloud storage solution? (will also lessen the burden of the db)
     try:
-        async for chunk in read_file_in_chunks(document_image_file, max_size=MAX_IMG_SIZE):
-            document_image += chunk
+        document_image = await read_file_in_chunks(document_image_file, max_size=MAX_IMG_SIZE)
     except FileTooLargeException as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+    # TODO: validate image asynchronously
 
     # Validate data
     patient_data = Patient(name=name, email=email, phone_number=phone_number, document_image=document_image)
@@ -63,3 +68,5 @@ async def create_patient(
         session.commit()
         session.refresh(patient_data)
         return patient_data
+
+    # TODO: queue up email
