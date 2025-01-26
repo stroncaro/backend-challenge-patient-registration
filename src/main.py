@@ -32,7 +32,7 @@ async def create_patient(
     # For scaling, consider:
     #   1. Writing images to temp files on disk (slower, but can mitigate ram usage issues)
     #   2. Monitor memory usage and deny requests after certain treshold to avoid app crashing?
-    #   3. Move to a cloud storage solution? (will also lessen the burden of the db)
+    #   3. Stream image directly to a cloud storage? (will also lessen the burden on the db)
     try:
         document_image = await read_file_in_chunks(document_image_file, max_size=Patient.MAX_IMG_SIZE)
     except FileTooLargeException as e:
