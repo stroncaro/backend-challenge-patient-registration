@@ -62,6 +62,7 @@ class Patient(PatientBase, table=True):
 class PatientPublic(PatientBase):
     id: int
 
+# NOTE: Event listeners bellow. Should probably be refactored out if they start to add up
 def patient_after_insert_listener(mapper, connection, target: Patient):
     subject = "Registration succesful!"
     recipients = [target.email]
