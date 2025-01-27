@@ -5,10 +5,8 @@ import time
 from celery import Celery
 from pydantic import EmailStr
 
-# Initialize Celery app
 celery_app = Celery('tasks', broker='redis://localhost:6379/0')
 
-# Update configuration
 celery_app.conf.update(
     task_routes={
         'src.celery_app.send_email_task': {'queue': 'email_queue'},
