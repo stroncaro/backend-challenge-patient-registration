@@ -23,6 +23,7 @@ app = FastAPI(lifespan=lifespan)
 @app.put("/patient", response_model=PatientPublic)
 async def create_patient(
     name: Annotated[str, Form()],
+    address: Annotated[str, Form()],
     email: Annotated[EmailStr, Form()],
     phone_number: Annotated[str, Form()],
     document_image_file: Annotated[UploadFile, File()],
@@ -41,7 +42,13 @@ async def create_patient(
     # Validate data, collecting errors
     # NOTE: Currently, the image is being validated synchronously with the rest of the data,
     # which could slow down execution. If this turns out to be a problem, validate it asynchronously.
-    patient_data = Patient(name=name, email=email, phone_number=phone_number, document_image=document_image)
+    patient_data = Patient(
+        name=name,
+        address=address,
+        email=email,
+        phone_number=phone_number,
+        document_image=document_image
+    )
     validation_errors = []
     try:
         Patient.model_validate(patient_data)

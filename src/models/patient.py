@@ -10,18 +10,20 @@ from sqlalchemy import event
 from background_tasks.send_email import send_email
 
 class PatientBase(SQLModel):
-    name: str
-    email: EmailStr
-    phone_number: str
+    name: str = Field(min_length=1, max_length=255)
+    address: str = Field(min_length=10, max_length=255)
+    email: EmailStr = Field(max_length=255)
+    phone_number: str = Field(max_length=255)
 
-    @field_validator("name")
+    # NOTE: Validating names is a complex endeavour, so I'm only catching empty strings here.
+    # Stricter validation can be implemented if required.
+    # For context, see answer and comments at https://stackoverflow.com/a/2385811
+
+    @field_validator("name", "address")
     @classmethod
-    def validate_name(cls, value: str) -> str:
-        # Validating names is a complex endeavour, so I'm only catching empty strings here.
-        # Stricter validation can be implemented if required.
-        # For context, see answer and comments at https://stackoverflow.com/a/2385811
+    def validate_not_whitespace(cls, value: str) -> str:
         if not value.strip():
-            raise ValueError("Name cannot be empty or only whitespace")
+            raise ValueError("Value cannot be only whitespace")
         return value
 
     @field_validator("phone_number")
