@@ -5,6 +5,9 @@ from PIL import Image, UnidentifiedImageError
 import phonenumbers
 from pydantic import EmailStr, field_validator
 from sqlmodel import SQLModel, Field, Column, BLOB
+from sqlalchemy import event
+
+from background_tasks.send_email import send_email
 
 class PatientBase(SQLModel):
     name: str
@@ -58,3 +61,19 @@ class Patient(PatientBase, table=True):
 
 class PatientPublic(PatientBase):
     id: int
+
+# NOTE: Event listeners bellow. Should probably be refactored out if they start to add up
+def patient_after_insert_listener(mapper, connection, target: Patient):
+    subject = "Registration succesful!"
+    recipients = [target.email]
+    body = f"""Hello {target.name},
+
+Your registration is complete. Thank you for trusting us with your data.
+
+Warm regards,
+The Patient Registration Team
+"""
+
+    send_email(subject, recipients, body)
+
+event.listen(Patient, "after_insert", patient_after_insert_listener)

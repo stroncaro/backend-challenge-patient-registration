@@ -5,3 +5,5 @@ mysql-connector-python
 phonenumbers
 pillow
 debugpy
+celery
+redis

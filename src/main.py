@@ -25,7 +25,7 @@ async def create_patient(
     name: Annotated[str, Form()],
     email: Annotated[EmailStr, Form()],
     phone_number: Annotated[str, Form()],
-    document_image_file: Annotated[UploadFile, File()]
+    document_image_file: Annotated[UploadFile, File()],
 ):
     # Get image in chunks to avoid blocking the application.
     # NOTE: Currently, the images are stored in ram, which should be fine for moderate traffic?
@@ -60,7 +60,4 @@ async def create_patient(
         session.add(patient_data)
         session.commit()
         session.refresh(patient_data)
-
-    # TODO: queue up email
-    
-    return patient_data
+        return patient_data
