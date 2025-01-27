@@ -10,10 +10,28 @@ from sqlalchemy import event
 from background_tasks.send_email import send_email
 
 class PatientBase(SQLModel):
-    name: str = Field(min_length=1, max_length=255)
-    address: str = Field(min_length=10, max_length=255)
-    email: EmailStr = Field(max_length=255)
-    phone_number: str = Field(max_length=255)
+    name: str = Field(
+        min_length=1,
+        max_length=255,
+        title="Name",
+        description="The full name of the patient.",
+    )
+    address: str = Field(
+        min_length=10,
+        max_length=255,
+        title="Address",
+        description="The full address of the patient."
+    )
+    email: EmailStr = Field(
+        max_length=255,
+        title="Email",
+        description="The email of the patient."
+    )
+    phone_number: str = Field(
+        max_length=255,
+        title="Phone Number",
+        description="The phone number of the patient."
+    )
 
     # NOTE: Validating names is a complex endeavour, so I'm only catching empty strings here.
     # Stricter validation can be implemented if required.
@@ -42,7 +60,11 @@ class Patient(PatientBase, table=True):
     MAX_IMG_SIZE: ClassVar[int] = 2 * (1024 ** 2)
 
     id: int | None = Field(default=None, primary_key=True)
-    document_image: bytes = Field(sa_column=Column(BLOB(MAX_IMG_SIZE)))
+    document_image: bytes = Field(
+        sa_column=Column(BLOB(MAX_IMG_SIZE)),
+        title="Document Image",
+        description="A photo of the patient's ID card. Must be less than 2 MB in size and in an accepted image format (JPEG, PNG)."
+    )
 
     @field_validator("document_image")
     @classmethod

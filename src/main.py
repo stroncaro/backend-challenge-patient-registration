@@ -22,11 +22,32 @@ app = FastAPI(lifespan=lifespan)
 
 @app.put("/patient", response_model=PatientPublic)
 async def create_patient(
-    name: Annotated[str, Form()],
-    address: Annotated[str, Form()],
-    email: Annotated[EmailStr, Form()],
-    phone_number: Annotated[str, Form()],
-    document_image_file: Annotated[UploadFile, File()],
+    name: Annotated[str, Form(
+        min_length=1,
+        max_length=255,
+        title="Name",
+        description="The full name of the patient."
+    )],
+    address: Annotated[str, Form(
+        min_length=10,
+        max_length=255,
+        title="Address",
+        description="The full address of the patient."
+    )],
+    email: Annotated[EmailStr, Form(
+        max_length=255,
+        title="Email",
+        description="The email address of the patient."
+    )],
+    phone_number: Annotated[str, Form(
+        max_length=255,
+        title="Phone Number",
+        description="The phone number of the patient. Should include the country code."
+    )],
+    document_image_file: Annotated[UploadFile, File(
+        title="Document Image",
+        description="A photo of the patient's ID card. Must be less than 2 MB in size and in an accepted image format (JPEG, PNG)."
+    )],
 ):
     # Get image in chunks to avoid blocking the application.
     # NOTE: Currently, the images are stored in ram, which should be fine for moderate traffic?
