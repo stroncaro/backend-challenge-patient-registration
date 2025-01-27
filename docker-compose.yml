@@ -17,7 +17,7 @@ services:
       - MYSQL_DATABASE=fastapi_app
       - MYSQL_USER=user
       - MYSQL_PASSWORD=password
-    command: fastapi dev src/main.py --host 0.0.0.0
+    command: ./init.sh
 
   mysql:
     image: mysql:8.4

@@ -4,6 +4,6 @@ sqlmodel
 mysql-connector-python
 phonenumbers
 pillow
-fastapi-mail
-aiosmtpd
 debugpy
+celery
+redis
