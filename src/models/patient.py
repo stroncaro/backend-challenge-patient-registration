@@ -63,20 +63,16 @@ class PatientPublic(PatientBase):
     id: int
 
 def patient_after_insert_listener(mapper, connection, target: Patient):
-    print(f"Patient {target.name} added to the db. Queue email to {target.email}.")
-
-    email_data = {
-        "subject": "Registration succesful!",
-        "recipients": [target.email],
-        "body": f"""Hello {target.name},
+    subject = "Registration succesful!"
+    recipients = [target.email]
+    body = f"""Hello {target.name},
 
 Your registration is complete. Thank you for trusting us with your data.
 
 Warm regards,
 The Patient Registration Team
 """
-    }
 
-    send_email_task.delay()
+    send_email_task.delay(subject, recipients, body)
 
 event.listen(Patient, "after_insert", patient_after_insert_listener)
