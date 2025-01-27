@@ -7,7 +7,7 @@ from pydantic import EmailStr, field_validator
 from sqlmodel import SQLModel, Field, Column, BLOB
 from sqlalchemy import event
 
-from celery_app import send_email_task
+from background_tasks.send_email import send_email
 
 class PatientBase(SQLModel):
     name: str
@@ -73,6 +73,6 @@ Warm regards,
 The Patient Registration Team
 """
 
-    send_email_task.delay(subject, recipients, body)
+    send_email(subject, recipients, body)
 
 event.listen(Patient, "after_insert", patient_after_insert_listener)

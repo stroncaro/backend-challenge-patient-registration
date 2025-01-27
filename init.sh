@@ -14,7 +14,7 @@ echo "Redis is up, starting FastAPI and Celery..."
 
 # Start Celery
 cd src
-celery -A celery_app.celery_app worker --loglevel=info &
+celery -A background_tasks worker --loglevel=info &
 
 # Start FastAPI in the background
 fastapi dev main.py --host 0.0.0.0
