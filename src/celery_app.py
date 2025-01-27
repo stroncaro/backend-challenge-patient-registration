@@ -20,7 +20,8 @@ def send_email_task(subject: str, recipients: List[EmailStr], body: str):
 
     # NOTE: Sleeping to simulate the email being sent.
     # Here I would use a synchronous email library like smtplib to actually send the email
-    # but I don't have an email server configured to actually do that.
+    # but I don't have an email server configured to actually do that. Would have loved to
+    # try doing that but I ran out of time.
     time.sleep(1)
 
     print(f"Email sent!")
